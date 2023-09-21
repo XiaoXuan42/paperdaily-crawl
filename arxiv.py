@@ -1,10 +1,6 @@
 import urllib.request
-import logging
 from lxml import etree
 from typing import List
-
-
-logging.basicConfig(format="%(asctime)s %(message)s")
 
 
 class ArxivRecord:
@@ -68,7 +64,7 @@ class ArxivAPI:
         return results
 
     @classmethod
-    def oai_records(cls, from_time=None, until_time=None, set=None) -> List[ArxivRecord]:
+    def get_records_by_oai(cls, from_time=None, until_time=None, set=None) -> List[ArxivRecord]:
         basic_url = "http://export.arxiv.org/oai2?verb=ListRecords"
         url = basic_url
         if from_time:

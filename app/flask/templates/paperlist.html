@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>PaperList</title>
+</head>
+<body>
+  <p>{{ today }}</p>
+  <div class="paperlist">
+    <ul>
+      {% for paper in papers %}
+        <li>{{ paper.title }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>
