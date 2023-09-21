@@ -12,8 +12,6 @@ def today():
     s_yesterday = d_yesterday.strftime("%Y-%m-%d")
 
     papers = ArxivAPI.get_records_by_oai(from_time=s_yesterday, until_time=s_today, set="econ")
-    print(s_today, s_yesterday, len(papers))
-
     return render_template("paperlist.html", today=s_today, papers=papers)
     
 
