@@ -9,14 +9,23 @@ import copy
 
 
 class ArxivRecord:
-    def __init__(self) -> None:
-        self.id = ""
-        self.title = ""
-        self.abstract = ""
-        self.categories = []
-        self.authors = []
-        self.published = ""
-        self.updated = ""
+    def __init__(
+        self,
+        id="",
+        title="",
+        abstract="",
+        categories=None,
+        authors=None,
+        published="",
+        updated="",
+    ) -> None:
+        self.id = id
+        self.title = title
+        self.abstract = abstract
+        self.categories = [] if categories is None else categories
+        self.authors = [] if authors is None else authors
+        self.published = published
+        self.updated = updated
 
 
 class ArxivAPI:
@@ -128,7 +137,7 @@ class ArxivSet:
             if id in other.id2records:
                 res.append(r)
         return ArxivSet(res)
-    
+
     def __len__(self):
         return len(self.records)
 
@@ -141,29 +150,69 @@ class ArxivDaily(ArxivSet):
 
 
 class ArxivFilter:
-    def __init__(self, categories=None) -> None:
-        if categories is None:
-            self.categories = None
-        else:
-            if isinstance(categories, (list, tuple)):
-                categories = [categories]
-            self.categories = set(categories)
+    def __init__(
+        self,
+        categories=None,
+        keypoints_in_abstract=None,
+        keypoints_in_title=None,
+        authors=None,
+    ) -> None:
+        self.categories = self._none_or_set(categories)
+        self.keypoints_in_abstract = self._none_or_set(keypoints_in_abstract)
+        self.keypoints_in_title = self._none_or_set(keypoints_in_title)
+        self.authors = self._none_or_set(authors)
 
-    def _filter_by_category(self, record: ArxivRecord):
+    def _none_or_set(self, val):
+        if val is None:
+            return None
+        else:
+            if not isinstance(val, (list, tuple)):
+                val = [val]
+        return set(val)
+
+    def _filt_by_category(self, record: ArxivRecord):
         if self.categories is None:
             return True
         else:
             st = self.categories.intersection(set(record.categories))
-            if len(st) > 0:
-                return True
-        return False
+            return len(st) > 0
 
-    def filter(self, records: List[ArxivRecord]):
+    def _filt_by_authors(self, record: ArxivRecord):
+        if self.authors is None:
+            return True
+        else:
+            st = self.authors.intersection(set(record.authors))
+            return len(st) > 0
+
+    def _filt_by_keypoint(self, keypoints, s: str):
+        if keypoints is None:
+            return True
+        else:
+            for kpt in keypoints:
+                if kpt in s:
+                    return True
+            return False
+
+    def _filt_by_keypoint_in_title(self, record: ArxivRecord):
+        return self._filt_by_keypoint(self.keypoints_in_title, record.title)
+
+    def _filt_by_keypoint_in_abstract(self, record: ArxivRecord):
+        return self._filt_by_keypoint(self.keypoints_in_abstract, record.abstract)
+
+    def _filt(self, records: List[ArxivRecord]):
         res = []
         for record in records:
-            if self._filter_by_category(record):
-                res.append(res)
+            if (
+                self._filt_by_category(record)
+                and self._filt_by_authors(record)
+                and self._filt_by_keypoint_in_abstract(record)
+                and self._filt_by_keypoint_in_title(record)
+            ):
+                res.append(record)
         return res
+
+    def __call__(self, data: ArxivSet):
+        return ArxivSet(self._filt(data.get_records()))
 
 
 _default_asset_root = os.path.join(os.path.dirname(__file__), "arxiv")
@@ -299,7 +348,8 @@ class ArxivAsset:
         res = self.load_cache(pset, date)
         if res is None:
             res = self.request_and_cache(pset, date)
-        return res
+        filter = ArxivFilter(categories=[category])
+        return filter(res)
 
 
 if __name__ == "__main__":
