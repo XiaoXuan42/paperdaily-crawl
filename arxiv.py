@@ -1,4 +1,5 @@
 import urllib.request
+import urllib
 from lxml import etree
 from typing import List
 from datetime import datetime, timedelta
@@ -51,7 +52,7 @@ class ArxivAPI:
         resumption_token = ""
         for record_node in list_records:
             if f"{{{cls.OAI_xmlns}}}resumptionToken" == record_node.tag:
-                resumption_token = record_node.text
+                resumption_token = record_node.text if record_node.text else ""
                 break
             metadata_node = record_node.find(f"{{{cls.OAI_xmlns}}}metadata")[0]
             record = ArxivRecord()
@@ -75,20 +76,22 @@ class ArxivAPI:
         cls, from_time=None, until_time=None, set=None
     ) -> List[ArxivRecord]:
         basic_url = "http://export.arxiv.org/oai2?verb=ListRecords"
-        url = basic_url
-        if from_time:
-            url += f"&from={from_time}"
-        if until_time:
-            url += f"&until={until_time}"
-        url += "&metadataPrefix=arXiv"
-        if set:
-            url += f"&set={set}"
+
         results = []
         resumption_token = ""
         while True:
-            true_url = url
             if resumption_token != "":
-                true_url += f"&resumptionToken={resumption_token}"
+                true_url = f"{basic_url}&resumptionToken={urllib.parse.quote(resumption_token)}"
+            else:
+                true_url = basic_url
+                if from_time:
+                    true_url += f"&from={from_time}"
+                if until_time:
+                    true_url += f"&until={until_time}"
+                if set:
+                    true_url += f"&set={set}"
+                true_url += "&metadataPrefix=arXiv"
+
             with urllib.request.urlopen(true_url) as res:
                 xml = res.read()
                 resumption_token = cls.from_oai_xml(xml, results)
@@ -125,6 +128,9 @@ class ArxivSet:
             if id in other.id2records:
                 res.append(r)
         return ArxivSet(res)
+    
+    def __len__(self):
+        return len(self.records)
 
 
 class ArxivDaily(ArxivSet):
@@ -247,6 +253,7 @@ class ArxivAsset:
 
     def cache(self, data: ArxivDaily, pset, date):
         path = self._get_cache_path(pset, date)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "wb") as f:
             pickle.dump(data, f)
 
@@ -258,7 +265,7 @@ class ArxivAsset:
             records = ArxivAPI.get_records_by_oai(
                 from_time=s_yesterday, until_time=date, set=pset
             )
-            arxiv_daily = ArxivDaily(records)
+            arxiv_daily = ArxivDaily(date, pset, records)
             self.cache(arxiv_daily, pset, date)
             return arxiv_daily
 
@@ -272,7 +279,7 @@ class ArxivAsset:
 
         path = self._get_cache_path(pset, date)
         try:
-            with open(path, "wb") as f:
+            with open(path, "rb") as f:
                 res = pickle.load(f)
                 self._cached_daily.setdefault(pset, {})
                 self._cached_daily[pset][date] = res
@@ -297,4 +304,5 @@ class ArxivAsset:
 
 if __name__ == "__main__":
     arxiv = ArxivAsset()
-    print(arxiv.get_by_date("cs.AI", "2023-09-20"))
+    yesterday = datetime.strftime((datetime.utcnow() - timedelta(days=1)), "%Y-%m-%d")
+    print(f"{yesterday}: {len(arxiv.get_by_date('cs.AI', yesterday))}")
