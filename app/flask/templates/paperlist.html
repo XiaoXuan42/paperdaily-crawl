@@ -4,37 +4,43 @@
   <title>PaperList</title>
 </head>
 <body>
-  <p>{{ date }}</p>
-  <div class="paperlist">
-    <ul>
+  <div class="container">
+    <p>{{ date }}</p>
+    <div class="paper-list">
       {% for paper in papers %}
-      <div class="paperItem">
-        <li>{{ paper.title }}</li>
-        <a class="abstract-btn">Abstract</a>
-        <p class="abstract">{{ paper.abstract }}</p>
-      </div>
+        <div class="paper">
+          <p class="paper-title"><a class="abstract-btn">✚</a>
+            {{ paper.title }}
+          </p>
+          <div>
+            <span>Authors: </span>
+          {% for author in paper.authors %}
+            {% if loop.last %}
+            <span class="paper-author">{{ author }}</span>
+            {% else %}
+            <span class="paper-author">{{ author }}, </span>
+            {% endif %}
+          {% endfor %}
+          </div>
+          <p class="paper-abstract">{{ paper.abstract }}</p>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   </div>
 </body>
 <style>
-.abstract {
+.container {
+  margin: 0px 20%;
+}
+.paper-title {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+.paper-abstract {
+  margin-top: 3px;
   display: none;
 }
 </style>
 <script>
-let abs_btns = document.getElementsByClassName("abstract-btn")
-for (let i = 0; i < abs_btns.length; i++) {
-  abs_btns[i].addEventListener("click", function() {
-    this.classList.toggle("active")
-    let content = this.nextElementSibling;
-    let content_display = window.getComputedStyle(content).display
-    if (content_display === "block") {
-      content.style.display = "none";
-    } else {
-      content.style.display = "block";
-    }
-  })
-}
 </script>
 </html>
