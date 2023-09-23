@@ -23,3 +23,12 @@ class CategoryFilterConfig:
         for t in tmps:
             res = res.union(t)
         return res
+
+    def get_str_attr(self, attr):
+        val = getattr(self, attr)
+        if val is None:
+            return ""
+        else:
+            if isinstance(val, list):
+                return ','.join([str(v) for v in val])
+            return str(val)
