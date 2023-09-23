@@ -157,8 +157,8 @@ class ArxivFilter:
         authors=None,
     ) -> None:
         self.categories = self._none_or_set(categories)
-        self.keypoints_in_abstract = self._none_or_set(keypoints_in_abstract)
-        self.keypoints_in_title = self._none_or_set(keypoints_in_title)
+        self.keywd_in_abstract = self._none_or_set(keypoints_in_abstract)
+        self.keywd_in_title = self._none_or_set(keypoints_in_title)
         self.authors = self._none_or_set(authors)
 
     def _none_or_set(self, val):
@@ -183,20 +183,20 @@ class ArxivFilter:
             st = self.authors.intersection(set(record.authors))
             return len(st) > 0
 
-    def _filt_by_keypoint(self, keypoints, s: str):
+    def _filt_by_keyword(self, keypoints, s: str):
         if keypoints is None:
             return True
         else:
             for kpt in keypoints:
-                if kpt in s:
+                if kpt.lower() in s.lower():
                     return True
             return False
 
     def _filt_by_keypoint_in_title(self, record: ArxivRecord):
-        return self._filt_by_keypoint(self.keypoints_in_title, record.title)
+        return self._filt_by_keyword(self.keywd_in_title, record.title)
 
     def _filt_by_keypoint_in_abstract(self, record: ArxivRecord):
-        return self._filt_by_keypoint(self.keypoints_in_abstract, record.abstract)
+        return self._filt_by_keyword(self.keywd_in_abstract, record.abstract)
 
     def _filt(self, records: List[ArxivRecord]):
         res = []

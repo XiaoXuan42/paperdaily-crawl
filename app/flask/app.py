@@ -67,26 +67,19 @@ def _query_from_dict(d: dict):
     return _query(date, config=cur_config, primary_set=pset)
 
 
-@app.route("/query/<pset>")
+@app.route("/<pset>/")
 def query(pset):
     d = request.args.to_dict()
     d["primary_set"] = pset
     return _query_from_dict(d)
 
 
-@app.route("/cs/")
-def cs_query():
-    d = request.args.to_dict()
-    d["primary_set"] = "cs"
-    return _query_from_dict(d)
-
-
-@app.route("/cs/yesterday")
-def cs_yesterday():
+@app.route("/<pset>/yesterday")
+def query_yesterday(pset):
     global config
     d_yesterday = datetime.now(timezone.utc) - timedelta(days=1)
     s_yesterday = d_yesterday.strftime("%Y-%m-%d")
-    return _query(s_yesterday, config=config, primary_set="cs")
+    return _query(s_yesterday, config=config, primary_set=pset)
 
 
 if __name__ == "__main__":
