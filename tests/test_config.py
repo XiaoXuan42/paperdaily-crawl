@@ -7,8 +7,8 @@ def test_Config():
         {
             "categories": ["cs.AI", "cs.CG"],
             "authors": ["luka judy"],
-            "keypoints_in_title": ["transformer", "token"],
-            "keypoints_in_abstract": ["novel"],
+            "keywd_in_title": ["transformer", "token"],
+            "keywd_in_abstract": ["novel"],
         }
     )
     records = [

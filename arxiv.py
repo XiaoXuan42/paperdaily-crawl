@@ -5,7 +5,6 @@ from typing import List
 from datetime import datetime, timedelta
 import pickle
 import os
-import copy
 
 
 class ArxivRecord:
@@ -336,8 +335,13 @@ class ArxivAsset:
         except FileNotFoundError:
             return None
 
-    def get_by_date(self, category, date):
-        pset = self.find_pset(category)
+    def get_by_date(self, date, category=None, primary_set=None):
+        pset = None
+        if category is not None:
+            pset = self.find_pset(category)
+        else:
+            pset = primary_set
+
         if pset is None:
             return None
         d_date = datetime.strptime(date, "%Y-%m-%d")
@@ -348,11 +352,9 @@ class ArxivAsset:
         res = self.load_cache(pset, date)
         if res is None:
             res = self.request_and_cache(pset, date)
-        filter = ArxivFilter(categories=[category])
-        return filter(res)
 
-
-if __name__ == "__main__":
-    arxiv = ArxivAsset()
-    yesterday = datetime.strftime((datetime.utcnow() - timedelta(days=1)), "%Y-%m-%d")
-    print(f"{yesterday}: {len(arxiv.get_by_date('cs.AI', yesterday))}")
+        if category:
+            filter = ArxivFilter(categories=[category])
+            return filter(res)
+        else:
+            return res

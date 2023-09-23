@@ -3,16 +3,16 @@ from arxiv import ArxivFilter, ArxivSet
 
 class CategoryFilterConfig:
     def __init__(self, d: dict) -> None:
-        self.categories = d["categories"]
+        self.categories = d.get("categories", [])
         self.authors = d.get("authors", [])
-        self.keypoints_in_title = d.get("keypoints_in_title", [])
-        self.keypoints_in_abstract = d.get("keypoints_in_abstract", [])
+        self.keywd_in_title = d.get("keywd_in_title", [])
+        self.keywd_in_abstract = d.get("keywd_in_abstract", [])
 
         self.category_filter = ArxivFilter(categories=self.categories)
         self.authors_filter = ArxivFilter(authors=self.authors)
-        self.title_filter = ArxivFilter(keypoints_in_title=self.keypoints_in_title)
+        self.title_filter = ArxivFilter(keypoints_in_title=self.keywd_in_title)
         self.abstract_filter = ArxivFilter(
-            keypoints_in_abstract=self.keypoints_in_abstract
+            keypoints_in_abstract=self.keywd_in_abstract
         )
 
     def filt(self, data: ArxivSet):
