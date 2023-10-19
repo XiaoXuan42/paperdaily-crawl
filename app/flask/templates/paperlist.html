@@ -9,8 +9,9 @@
     <div class="paper-list">
       {% for paper in papers %}
         <div class="paper">
-          <p class="paper-title"><a class="abstract-btn" id="btn-abs-{{loop.index}}">✚</a>
-            {{ paper.title }}
+          <p class="paper-title">
+            <a class="abstract-btn" id="btn-abs-{{loop.index}}">✚</a>
+            <a class="arxiv-link" href="https://arxiv.org/abs/{{paper.id}}" target="_blank">{{ paper.title }}</a>
           </p>
           <div>
             <span>Authors: </span>
@@ -29,6 +30,12 @@
   </div>
 </body>
 <style>
+a {
+  text-decoration: none;
+}
+a:link, a:visited {
+  color: black;
+}
 .container {
   margin: 0px 20%;
 }
