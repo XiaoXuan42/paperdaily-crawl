@@ -1,5 +1,5 @@
 import nltk
-nltk.download("punkt")
+
 
 class NLP:
     @staticmethod
