@@ -22,3 +22,12 @@ Pattern: `/<primary_set>/?date=%Y-%m-%d&categories=<c1>,...,<cn>&keywd_in_title=
 2. `/cs/yesterday`: list papers published/updated in cs primary category yesterday that satisfy the constraints specified by `config.json`.
 
 Available primary set: `cs, econ, physics, q-bio, q-fin, stat, math, eess`
+
+## Roadmap
+- [ ] More fancy/useful website
+    - [ ] search inputbox
+    - [ ] keyword highlight
+    - [ ] link to arxiv
+- [ ] More intelligent
+    - [ ] sort papers according to the configuration
+    - [ ] filter by semantic rather than simple phrase-matching

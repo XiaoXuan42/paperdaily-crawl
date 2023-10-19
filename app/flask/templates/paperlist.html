@@ -9,7 +9,7 @@
     <div class="paper-list">
       {% for paper in papers %}
         <div class="paper">
-          <p class="paper-title"><a class="abstract-btn">✚</a>
+          <p class="paper-title"><a class="abstract-btn btn-abs-paper-{{loop.index}}">✚</a>
             {{ paper.title }}
           </p>
           <div>
@@ -22,7 +22,7 @@
             {% endif %}
           {% endfor %}
           </div>
-          <p class="paper-abstract">{{ paper.abstract }}</p>
+          <p class="paper-abstract p-abs-paper-{{loop.index}}">{{ paper.abstract }}</p>
         </div>
       {% endfor %}
     </div>

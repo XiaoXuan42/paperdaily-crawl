@@ -3,6 +3,7 @@ import urllib
 from lxml import etree
 from typing import List
 from datetime import datetime, timedelta
+from utils import NLP
 import pickle
 import os
 
@@ -167,28 +168,30 @@ class ArxivFilter:
         else:
             if not isinstance(val, (list, tuple)):
                 val = [val]
-        return set(val)
+        return set([v.lower() for v in val])
 
     def _filt_by_category(self, record: ArxivRecord):
         if self.categories is None:
             return True
         else:
-            st = self.categories.intersection(set(record.categories))
+            lower_record_categories = set([c.lower() for c in record.categories])
+            st = self.categories.intersection(lower_record_categories)
             return len(st) > 0
 
     def _filt_by_authors(self, record: ArxivRecord):
         if self.authors is None:
             return True
         else:
-            st = self.authors.intersection(set(record.authors))
+            lower_record_authors = set([a.lower() for a in record.authors])
+            st = self.authors.intersection(lower_record_authors)
             return len(st) > 0
 
-    def _filt_by_keyword(self, keypoints, s: str):
-        if keypoints is None:
+    def _filt_by_keyword(self, keywords, s: str):
+        if keywords is None:
             return True
         else:
-            for kpt in keypoints:
-                if kpt.lower() in s.lower():
+            for kwd in keywords:
+                if NLP.contain_phrase(s, kwd):
                     return True
             return False
 
