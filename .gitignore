@@ -5,3 +5,5 @@ bin
 include
 __pycache__
 .pytest_cache
+configs/*.json
+!configs/config.json
