@@ -293,8 +293,20 @@ class ArxivAsset:
         self.root = root
         self._cached_daily = {}
 
-    def find_pset(self, category):
-        for pset, cts in self.categories_set.items():
+    @classmethod
+    def is_valid_pset(cls, pset):
+        return pset in list(cls.categories_set.keys())
+
+    @classmethod
+    def get_all_categories(cls, pset):
+        if pset in cls.categories_set:
+            return list(cls.categories_set[pset])
+        else:
+            return []
+
+    @classmethod
+    def find_pset(cls, category):
+        for pset, cts in cls.categories_set.items():
             if category in cts:
                 return pset
         return None
@@ -338,26 +350,38 @@ class ArxivAsset:
         except FileNotFoundError:
             return None
 
-    def get_by_date(self, date, category=None, primary_set=None):
-        pset = None
-        if category is not None:
-            pset = self.find_pset(category)
-        else:
-            pset = primary_set
+    def get_by_date(self, date, categories=None, primary_set=None):
+        """
+        If primary_set is None, then get primary_set by categories.
 
-        if pset is None:
+        Args:
+            date: date
+            categories: List[str] | None
+            primary_set: str | None
+        """
+        psets = None
+        if categories is not None:
+            psets = set()
+            for category in categories:
+                psets.add(self.find_pset(category))
+        else:
+            psets = set(primary_set)
+        if psets is None:
             return None
+
         d_date = datetime.strptime(date, "%Y-%m-%d")
         now = datetime.utcnow()
         if d_date + timedelta(days=1) > now:
             return None
 
-        res = self.load_cache(pset, date)
-        if res is None:
-            res = self.request_and_cache(pset, date)
+        result = ArxivSet([])
+        filter = ArxivFilter(categories=categories) if categories else None
+        for pset in psets:
+            cur_res = self.load_cache(pset, date)
+            if cur_res is None:
+                cur_res = self.request_and_cache(pset, date)
+            if filter:
+                cur_res = filter(cur_res)
+            result = result.union(cur_res)
 
-        if category:
-            filter = ArxivFilter(categories=[category])
-            return filter(res)
-        else:
-            return res
+        return result

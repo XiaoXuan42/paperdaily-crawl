@@ -1,4 +1,4 @@
 {
-    "categories": ["cs.AI"],
+    "categories": ["cs.AI", "cs.CV"],
     "keywd_in_title": ["Diffusion", "Transformer", "CNN"]
 }
