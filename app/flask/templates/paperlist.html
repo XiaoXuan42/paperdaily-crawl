@@ -9,7 +9,7 @@
     <div class="paper-list">
       {% for paper in papers %}
         <div class="paper">
-          <p class="paper-title"><a class="abstract-btn btn-abs-paper-{{loop.index}}">✚</a>
+          <p class="paper-title"><a class="abstract-btn" id="btn-abs-{{loop.index}}">✚</a>
             {{ paper.title }}
           </p>
           <div>
@@ -22,7 +22,7 @@
             {% endif %}
           {% endfor %}
           </div>
-          <p class="paper-abstract p-abs-paper-{{loop.index}}">{{ paper.abstract }}</p>
+          <p class="paper-abstract" id="p-abs-{{loop.index}}">{{ paper.abstract }}</p>
         </div>
       {% endfor %}
     </div>
@@ -42,5 +42,19 @@
 }
 </style>
 <script>
+let abstract_btns = document.getElementsByClassName("abstract-btn")
+Array.from(abstract_btns).forEach(btn => {
+    btn.onclick = function() {
+        const prefix_len = "btn-abs-".length
+        const paper_id = btn.id.substring(prefix_len)
+        let p_node = document.getElementById("p-abs-" + paper_id)
+        const p_display = window.getComputedStyle(p_node).display
+        if (p_display === "none") {
+            p_node.style.display = "block";
+        } else {
+            p_node.style.display = "none";
+        }
+    }
+});
 </script>
 </html>
