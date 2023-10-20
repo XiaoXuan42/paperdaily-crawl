@@ -17,9 +17,11 @@ Under the directory of this project, run `python -m flask --app app.flask.app ru
 
 1. `/cs/?date=2023-09-21&categories=cs.AI&keywd_in_title=Diffusion,Transformer,CNN`: list papers published/updated in 2023-09-21 of `cs.AI` with "Diffusion", "Transformer" or "CNN" in the title.
 
-Pattern: `/<primary_set>/?date=%Y-%m-%d&categories=<c1>,...,<cn>&keywd_in_title=<kt1>,...,<ktm>&keywd_in_abstract=<ka1>,...,<kap>&authors=<a1>,...,<ar>`
+Pattern: `/<primary_set>/?date=%Y-%m-%d&categories=<c1>,...,<cn>&keywd_in_title=<kt1>,...,<ktm>&keywd_in_abstract=<ka1>,...,<kap>&authors=<a1>,...,<ar>`.
 
-2. `/config/<config_name>/yesterday`: list papers published/updated in cs primary category yesterday that satisfy the constraints specified by `configs/<config_name>.json`.
+2. `/config/<config_name>/yesterday` or `/config/<config_name>/1`: list papers published/updated in cs primary category yesterday that satisfy the constraints specified by `configs/<config_name>.json`.
+
+Patter: `/config/<config_name>/<number>`: list papers `<number>` days ago according to configuration `<config_name>.json`.
 
 Available primary set: `cs, econ, physics, q-bio, q-fin, stat, math, eess`
 

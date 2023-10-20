@@ -46,6 +46,9 @@ def _query(date, config: CategoryFilterConfig):
 
 @app.route("/<pset>/")
 def query(pset):
+    """
+    Set arguments through url
+    """
     if not ArxivAsset.is_valid_pset(pset):
         return render_papers404("invalid")
 
@@ -74,16 +77,29 @@ def query(pset):
     return _query(date, config)
 
 
-@app.route("/config/<config_name>/yesterday")
-def query_yesterday(config_name):
-    d_yesterday = datetime.now(timezone.utc) - timedelta(days=1)
-    s_yesterday = d_yesterday.strftime("%Y-%m-%d")
+def query_config(config_name, offset):
+    d_today = datetime.now(timezone.utc)
+    try:
+        offset = int(offset)
+    except ValueError:
+        return render_papers404(d_today)
+    date = d_today - timedelta(days=offset)
+    s_date = date.strftime("%Y-%m-%d")
     config = _get_config(config_name)
 
     if config is None:
-        return render_papers404(s_yesterday)
+        return render_papers404(s_date)
+    return _query(s_date, config=config)
 
-    return _query(s_yesterday, config=config)
+
+@app.route("/config/<config_name>/yesterday")
+def query_yesterday(config_name):
+    return query_config(config_name, 1)
+
+
+@app.route("/config/<config_name>/<offset>")
+def query_config_with_offset(config_name, offset):
+    return query_config(config_name, offset)
 
 
 if __name__ == "__main__":
