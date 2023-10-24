@@ -5,6 +5,8 @@ from typing import List
 from datetime import datetime, timedelta
 from utils import NLP
 import pickle
+import io
+import zipfile
 import os
 
 
@@ -314,13 +316,14 @@ class ArxivAsset:
     def _get_cache_path(self, pset, date):
         return os.path.join(self.root, pset, date)
 
-    def cache(self, data: ArxivDaily, pset, date):
-        path = self._get_cache_path(pset, date)
+    def cache(self, data: ArxivDaily, pset, date: str):
+        path = self._get_cache_path(pset, date) + ".zip"
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, "wb") as f:
-            pickle.dump(data, f)
+        d_bytes = pickle.dumps(data)
+        with zipfile.ZipFile(path, "w") as zf:
+            zf.writestr(date, d_bytes)
 
-    def request_and_cache(self, pset, date):
+    def request_and_cache(self, pset, date: str):
         try:
             d_date = datetime.strptime(date, "%Y-%m-%d")
             d_yesterday = d_date - timedelta(days=1)
@@ -335,18 +338,25 @@ class ArxivAsset:
         except FileNotFoundError:
             return None
 
-    def load_cache(self, pset, date):
+    def load_cache(self, pset, date: str):
         if pset in self._cached_daily:
             if date in self._cached_daily[pset]:
                 return self._cached_daily[pset][date]
 
         path = self._get_cache_path(pset, date)
+        zippath = path + ".zip"
         try:
-            with open(path, "rb") as f:
-                res = pickle.load(f)
-                self._cached_daily.setdefault(pset, {})
-                self._cached_daily[pset][date] = res
-                return res
+            if os.path.exists(zippath):
+                with zipfile.ZipFile(zippath, "r") as zf:
+                    d_bytes = zf.read(date)
+                    res = pickle.loads(d_bytes)
+            else:
+                with open(path, "rb") as f:
+                    res = pickle.load(f)
+            self._cached_daily.setdefault(pset, {})
+            self._cached_daily[pset][date] = res
+
+            return res
         except FileNotFoundError:
             return None
 
