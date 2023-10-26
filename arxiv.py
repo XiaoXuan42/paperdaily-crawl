@@ -293,6 +293,8 @@ class ArxivAsset:
 
     def __init__(self, root=_default_asset_root):
         self.root = root
+        if not os.path.exists(self.root):
+            os.mkdir(self.root)
         self._cached_daily = {}
 
     @classmethod

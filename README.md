@@ -1,17 +1,19 @@
 # Paper Daily
 
-**Paper Daily** is a simple tool to get what interest you from arxiv based on categories, key words in title/abstract and authors. You can write your configuration in `config.json` and run the flask application to get the result.
+**Paper Daily** is a simple tool to get what interest you from arxiv based on categories, key words in title/abstract and authors. You can write your configuration in directory configs/(`config.json` is an example)  and run the flask application(`python -m flask --app app.flask.app run`) to get the result.
 
 ## A simple example
 `config.json`:
 ```json
 {
     "categories": ["cs.AI"],
-    "keywd_in_title": ["Diffusion", "Transformer", "CNN"]
+    "keywd_in_title": ["Diffusion", "Transformer", "CNN"],
+    "keywd_in_abstract": ["GAN"],
+    "author": ["David"]
 }
 ```
 
-This configuration means you are interested in papers of `cs.AI` with key word "Diffusion", "Transformer" or "CNN" in the title. Other available options include `keywd_in_abstract`, `authors`. Key word check is case insensitive.
+This configuration means you are interested in papers of `cs.AI` with keyword "Diffusion", "Transformer" or "CNN" in the title, or "GAN" in the abstract, or the author is David.
 
 Under the directory of this project, run `python -m flask --app app.flask.app run` to start a flask server. Available url formats are as follows:
 
@@ -23,7 +25,9 @@ Pattern: `/<primary_set>/?date=%Y-%m-%d&categories=<c1>,...,<cn>&keywd_in_title=
 
 Patter: `/config/<config_name>/<number>`: list papers `<number>` days ago according to configuration `<config_name>.json`.
 
-Available primary set: `cs, econ, physics, q-bio, q-fin, stat, math, eess`
+Available primary set: see `ArxivAsset.primary_set` in `arxiv.py`.
+
+Available categories: see `ArxivAsset.categories_set` in `arxiv.py`.
 
 ## Roadmap
 - [ ] More fancy/useful website
