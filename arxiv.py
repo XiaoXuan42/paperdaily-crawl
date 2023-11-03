@@ -8,6 +8,7 @@ import pickle
 import io
 import zipfile
 import os
+import time
 
 
 class ArxivRecord:
@@ -108,6 +109,7 @@ class ArxivAPI:
                 resumption_token = cls.from_oai_xml(xml, results)
                 if resumption_token == "":
                     break
+            time.sleep(0.1)
         return results
 
 
