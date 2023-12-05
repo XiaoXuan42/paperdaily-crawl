@@ -1,14 +1,23 @@
 import urllib.request
 import urllib
+import urllib.error
 from lxml import etree
 from typing import List
 from datetime import datetime, timedelta
 from utils import NLP
 import pickle
-import io
 import zipfile
 import os
 import time
+import re
+import logging
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+sh = logging.StreamHandler()
+sh.setLevel(logging.INFO)
+logger.addHandler(sh)
 
 
 class ArxivRecord:
@@ -104,11 +113,22 @@ class ArxivAPI:
                     true_url += f"&set={set}"
                 true_url += "&metadataPrefix=arXiv"
 
-            with urllib.request.urlopen(true_url) as res:
-                xml = res.read()
-                resumption_token = cls.from_oai_xml(xml, results)
-                if resumption_token == "":
-                    break
+            logger.info(f"Get from {true_url}")
+            try:
+                with urllib.request.urlopen(true_url) as res:
+                    xml = res.read()
+                    resumption_token = cls.from_oai_xml(xml, results)
+                    if resumption_token == "":
+                        break
+            except urllib.error.HTTPError as e:
+                err_msg = str(e.read())
+                match = re.search(r"Retry after (\d+) seconds", err_msg)
+                if match:
+                    t = int(match.group(1))
+                    logger.info(f"Waiting for {t + 1} seconds...")
+                    time.sleep(t + 1)
+                else:
+                    raise e
             time.sleep(0.1)
         return results
 
