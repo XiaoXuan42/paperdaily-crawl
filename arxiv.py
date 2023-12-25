@@ -71,6 +71,8 @@ class ArxivAPI:
             xml = etree.fromstring(xml)
         list_records = xml.find(f"{{{cls.OAI_xmlns}}}ListRecords")
         resumption_token = ""
+        if list_records is None:
+            return ""
         for record_node in list_records:
             if f"{{{cls.OAI_xmlns}}}resumptionToken" == record_node.tag:
                 resumption_token = record_node.text if record_node.text else ""
