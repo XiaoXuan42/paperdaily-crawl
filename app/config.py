@@ -1,4 +1,4 @@
-from arxiv import ArxivFilter, ArxivSet
+from app.asset import ArxivFilter, ArxivSet
 
 
 class CategoryFilterConfig:
@@ -11,9 +11,7 @@ class CategoryFilterConfig:
         self.category_filter = ArxivFilter(categories=self.categories)
         self.authors_filter = ArxivFilter(authors=self.authors)
         self.title_filter = ArxivFilter(keypoints_in_title=self.keywd_in_title)
-        self.abstract_filter = ArxivFilter(
-            keypoints_in_abstract=self.keywd_in_abstract
-        )
+        self.abstract_filter = ArxivFilter(keypoints_in_abstract=self.keywd_in_abstract)
 
     def filt(self, data: ArxivSet):
         tmp = self.category_filter(data)
@@ -30,5 +28,5 @@ class CategoryFilterConfig:
             return ""
         else:
             if isinstance(val, list):
-                return ','.join([str(v) for v in val])
+                return ",".join([str(v) for v in val])
             return str(val)

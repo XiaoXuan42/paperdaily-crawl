@@ -1,4 +1,4 @@
-from config import CategoryFilterConfig
+from app.config import CategoryFilterConfig
 from arxiv import ArxivRecord, ArxivSet
 
 

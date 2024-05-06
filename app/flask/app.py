@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
-from arxiv import ArxivAsset
-from config import CategoryFilterConfig
+from app.asset import ArxivAsset
+from app.config import CategoryFilterConfig
 from datetime import datetime, timezone, timedelta
 import os
 import json
