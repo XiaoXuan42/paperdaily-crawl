@@ -7,6 +7,7 @@ import requests
 from requests.adapters import HTTPAdapter, Retry
 import aiohttp
 import asyncio
+import re
 
 
 logger = logging.getLogger(__name__)
@@ -111,6 +112,12 @@ class ArxivAPI:
     }
 
     @classmethod
+    def _prettify_text(cls, s: str):
+        s = s.replace('\n', ' ')
+        s = re.sub(r'\s+', ' ', s)
+        return s
+
+    @classmethod
     def _oai_xml_attr_text(cls, metadata_node, attr):
         try:
             text = metadata_node.find(f"{{{cls.arxiv_xmlns}}}{attr}").text
@@ -146,8 +153,8 @@ class ArxivAPI:
             metadata_node = record_node.find(f"{{{cls.OAI_xmlns}}}metadata")[0]
             record = ArxivRecord()
             record.id = cls._oai_xml_attr_text(metadata_node, "id")
-            record.title = cls._oai_xml_attr_text(metadata_node, "title")
-            record.abstract = cls._oai_xml_attr_text(metadata_node, "abstract")
+            record.title = cls._prettify_text(cls._oai_xml_attr_text(metadata_node, "title"))
+            record.abstract = cls._prettify_text(cls._oai_xml_attr_text(metadata_node, "abstract"))
             record.published = cls._oai_xml_attr_text(metadata_node, "created")
             record.updated = cls._oai_xml_attr_text(metadata_node, "updated")
 
@@ -212,9 +219,10 @@ class ArxivAPI:
                 
                 async with sess.get(true_url) as response:
                     if response.status == 503:
-                        logger.info("Meet 503 status code")
+                        logger.info("503 status code")
                         if "Retry-After" in response.headers:
                             logger.info(f"retry-after: {response.headers['Retry-After']}")
+                            await asyncio.sleep(float(response.headers['Retry-After']) + 0.5)
                     xml = await response.read()
                     resumption_token = cls.from_oai_xml(xml, results)
 
