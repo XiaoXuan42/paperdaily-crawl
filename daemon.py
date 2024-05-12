@@ -11,7 +11,9 @@ logger = logging.getLogger(__name__)
 sh = logging.StreamHandler()
 logger.setLevel(logging.INFO)
 sh.setLevel(logging.INFO)
+sh.setFormatter(logging.Formatter("%(asctime)s-%(name)s-%(levelname)s %(message)s"))
 logger.addHandler(sh)
+logger.propagate = False
 
 
 def get_psets(pset=None):
@@ -65,17 +67,18 @@ class PaperCrawlDaemon:
             results.extend(await self._request(pset, date))
         return results
 
-    async def crawl(self):
+    async def crawl_loop(self):
         last_date = None
-        awake_interval_seconds = 60 * 60 * 8
+        awake_interval_seconds = 60 * 60 * 0.5
         while True:
-            now = ddt.now(datetime.UTC)
+            now = ddt.utcnow()
             if last_date is None or last_date + timedelta(days=1) < now:
+                logger.info("Fetch")
                 last_date = now
                 results = await self._request_all(now.strftime("%Y-%m-%d"))
                 self.dbint.update_records(results)
 
-            logger.info(f"Sleep {awake_interval_seconds / 3600} hours...")
+            logger.info(f"Sleep for {awake_interval_seconds / 3600} hours...")
             await asyncio.sleep(awake_interval_seconds)
 
     async def command(self):
@@ -86,7 +89,7 @@ class PaperCrawlDaemon:
             return
 
         tasks = []
-        tasks.append(self.crawl())
+        tasks.append(self.crawl_loop())
         tasks.append(self.command())
 
         await asyncio.gather(*tasks)

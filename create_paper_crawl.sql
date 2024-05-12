@@ -5,6 +5,6 @@ CREATE TABLE IF NOT EXISTS paper_crawl
     abstract TEXT(65535),
     categories VARCHAR(255),
     authors VARCHAR(10002),
-    published DATE,
+    published DATE NOT NULL,
     updated DATE
 );

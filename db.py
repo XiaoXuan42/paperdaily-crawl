@@ -10,11 +10,13 @@ sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
 sh.setFormatter(logging.Formatter("%(asctime)s-%(name)s-%(levelname)s %(message)s"))
 logger.addHandler(sh)
+logger.propagate = False
 
 
 class DBInterface:
-    def __init__(self, user, passwd, ip='127.0.0.1', port=3306):
-        self.engine = create_engine(f"mysql+pymysql://{user}:{passwd}@{ip}/papers?charset=utf8mb4")
+    def __init__(self, user, passwd, ip='127.0.0.1', port=3306, pool_recycle=3600):
+        self.engine = create_engine(f"mysql+pymysql://{user}:{passwd}@{ip}/papers?charset=utf8mb4",
+                                        pool_recycle=pool_recycle)
 
     def record_to_dict(self, record: ArxivRecord):
         return {

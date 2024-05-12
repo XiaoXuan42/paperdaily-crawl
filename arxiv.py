@@ -16,6 +16,7 @@ sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
 sh.setFormatter(logging.Formatter("%(asctime)s-%(name)s-%(levelname)s %(message)s"))
 logger.addHandler(sh)
+logger.propagate = False
 
 
 class ArxivRecord:
@@ -219,10 +220,12 @@ class ArxivAPI:
                 
                 async with sess.get(true_url) as response:
                     if response.status == 503:
-                        logger.info("503 status code")
+                        logger.info("Receive 503 status code")
                         if "Retry-After" in response.headers:
                             logger.info(f"retry-after: {response.headers['Retry-After']}")
                             await asyncio.sleep(float(response.headers['Retry-After']) + 0.5)
+                            continue
+
                     xml = await response.read()
                     resumption_token = cls.from_oai_xml(xml, results)
 
