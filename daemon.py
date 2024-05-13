@@ -72,7 +72,7 @@ class PaperCrawlDaemon:
         awake_interval_seconds = 60 * 60 * 0.5
         while True:
             now = ddt.utcnow()
-            if last_date is None or last_date + timedelta(days=1) < now:
+            if last_date is None or last_date.day != now.day:
                 logger.info("Fetch")
                 last_date = now
                 results = await self._request_all(now.strftime("%Y-%m-%d"))
